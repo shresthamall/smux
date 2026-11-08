@@ -82,3 +82,26 @@ tmux-*.log
 
 # Locally downloaded prebuilt client for Packages/Shared/CmuxTerminalClient
 Packages/Shared/CmuxTerminalClient/CmuxTerminalClient.xcframework/
+
+# --- Smux ---
+# Packaged app / installers (distribute via Releases, not git)
+*.dmg
+Smux-*.zip
+smux-*.zip
+*.app/
+
+# Local backups and patch scratch
+*.orig
+*.rej
+*.bak
+
+# Personal / machine-specific config
+.claude/settings.local.json
+*.local.plist
+.idea/
+.vscode/
+
+# Smux config snapshot: never commit per-machine secrets or lock files
+smux-config/**/*secret*
+smux-config/**/*.lock
+smux-config/**/*.bak*

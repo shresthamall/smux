@@ -1,0 +1,24 @@
+# custom_Neon Storm: terminal theme matching the Claude Code theme of the same name.
+# Background stays neutral near-black so the storm shader can draw on it.
+background = #0a0a0f
+foreground = #ffffff
+cursor-color = #ff4000
+cursor-text = #000000
+selection-background = #3d0080
+selection-foreground = #ffffff
+palette = 0=#808080
+palette = 1=#ff1a1a
+palette = 2=#00ff00
+palette = 3=#ffff00
+palette = 4=#00bfff
+palette = 5=#ff00ff
+palette = 6=#00ffff
+palette = 7=#e6e6e6
+palette = 8=#b84dff
+palette = 9=#ff4000
+palette = 10=#39ff14
+palette = 11=#ffd000
+palette = 12=#4d94ff
+palette = 13=#ff00bf
+palette = 14=#00ffbf
+palette = 15=#ffffff

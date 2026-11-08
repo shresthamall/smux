@@ -1,0 +1,24 @@
+# custom_Crimson: terminal theme matching the Claude Code theme of the same name.
+# Background stays neutral near-black so the storm shader can draw on it.
+background = #0f0a0a
+foreground = #ffffff
+cursor-color = #ff2200
+cursor-text = #000000
+selection-background = #660000
+selection-foreground = #ffffff
+palette = 0=#808080
+palette = 1=#ff0000
+palette = 2=#00ff66
+palette = 3=#ffcc00
+palette = 4=#4d79ff
+palette = 5=#ff00ff
+palette = 6=#00ffff
+palette = 7=#e6e6e6
+palette = 8=#ff9900
+palette = 9=#ff2200
+palette = 10=#66ff00
+palette = 11=#ffff00
+palette = 12=#66a3ff
+palette = 13=#ff00aa
+palette = 14=#00ffcc
+palette = 15=#ffffff

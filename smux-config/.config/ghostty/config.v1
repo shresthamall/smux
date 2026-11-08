@@ -1,0 +1,5 @@
+# Animated background. Uncomment exactly one (or both to stack them).
+# custom-shader = ~/.config/ghostty/shaders/iridescent.glsl
+custom-shader = ~/.config/ghostty/shaders/storm.glsl
+# "true" animates only while the window is focused (saves battery).
+custom-shader-animation = true

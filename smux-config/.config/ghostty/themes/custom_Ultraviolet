@@ -1,0 +1,24 @@
+# custom_Ultraviolet: terminal theme matching the Claude Code theme of the same name.
+# Background stays neutral near-black so the storm shader can draw on it.
+background = #0b0a10
+foreground = #ffffff
+cursor-color = #ff0099
+cursor-text = #000000
+selection-background = #3a0073
+selection-foreground = #ffffff
+palette = 0=#808080
+palette = 1=#ff2a2a
+palette = 2=#00ff80
+palette = 3=#ffea00
+palette = 4=#00aaff
+palette = 5=#ff00ff
+palette = 6=#00ffff
+palette = 7=#e6e6e6
+palette = 8=#c266ff
+palette = 9=#ff0099
+palette = 10=#00ffaa
+palette = 11=#ffaa00
+palette = 12=#4d88ff
+palette = 13=#d24dff
+palette = 14=#4dffff
+palette = 15=#ffffff

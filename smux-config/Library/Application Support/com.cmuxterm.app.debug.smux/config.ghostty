@@ -1,0 +1,9 @@
+surface-tab-bar-font-size = 11
+font-family = ""
+font-family = "PT Mono"
+background-opacity = 0.6
+background-blur = true
+
+# cmux themes start
+theme = light:custom_Crimson,dark:custom_Crimson
+# cmux themes end
