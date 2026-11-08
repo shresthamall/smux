@@ -1,0 +1,102 @@
+diff --git a/src/renderer/Thread.zig b/src/renderer/Thread.zig
+index bc716cd48..6f09cecf4 100644
+--- a/src/renderer/Thread.zig
++++ b/src/renderer/Thread.zig
+@@ -19,7 +19,7 @@ const App = @import("../App.zig");
+ const Allocator = std.mem.Allocator;
+ const log = std.log.scoped(.renderer_thread);
+ 
+-const DRAW_INTERVAL = 8; // 120 FPS
++const DRAW_INTERVAL = 33; // ~30 FPS (cmux personal build: shader animation is capped at ~30 FPS)
+ const CURSOR_BLINK_INTERVAL = 600;
+ 
+ /// cmux fork: minimum spacing between frames of an unfocused surface (about
+diff --git a/src/renderer/generic.zig b/src/renderer/generic.zig
+index f096f9ab5..c292cc8a3 100644
+--- a/src/renderer/generic.zig
++++ b/src/renderer/generic.zig
+@@ -332,6 +332,10 @@ pub fn Renderer(comptime GraphicsAPI: type) type {
+         /// Whether or not we have custom shaders.
+         has_custom_shaders: bool = false,
+ 
++        /// When we last drew a frame because a custom shader animates. See
++        /// `shaderAnimationFrameDue`.
++        last_shader_animation_frame: ?std.Io.Timestamp = null,
++
+         /// Our shader pipelines.
+         shaders: Shaders,
+ 
+@@ -803,6 +807,7 @@ pub fn Renderer(comptime GraphicsAPI: type) type {
+             min_contrast: f32,
+             padding_color: configpkg.WindowPaddingColor,
+             custom_shaders: configpkg.RepeatablePath,
++            custom_shader_animation: configpkg.CustomShaderAnimation,
+             bg_image: ?configpkg.Path,
+             bg_image_opacity: f32,
+             bg_image_position: configpkg.BackgroundImagePosition,
+@@ -878,6 +883,7 @@ pub fn Renderer(comptime GraphicsAPI: type) type {
+                     .search_selected_foreground = config.@"search-selected-foreground",
+ 
+                     .custom_shaders = custom_shaders,
++                    .custom_shader_animation = config.@"custom-shader-animation",
+                     .bg_image = bg_image,
+                     .bg_image_opacity = config.@"background-image-opacity",
+                     .bg_image_position = config.@"background-image-position",
+@@ -1299,6 +1305,32 @@ pub fn Renderer(comptime GraphicsAPI: type) type {
+             return self.has_custom_shaders;
+         }
+ 
++        /// Minimum spacing between frames drawn only because a custom shader
++        /// animates (~30 FPS). The display link still wakes us every vsync,
++        /// but those wakes present nothing (`presentLastTarget` is a no-op on
++        /// Metal), so the display is free to lower its refresh rate.
++        const shader_animation_interval_ns = 33 * std.time.ns_per_ms;
++
++        /// True when a custom shader animation frame is due: shaders are
++        /// loaded, `custom-shader-animation` allows animating in the current
++        /// focus state, and the last animation frame is at least
++        /// `shader_animation_interval_ns` old. Records the frame when due.
++        fn shaderAnimationFrameDue(self: *Self) bool {
++            if (!self.hasAnimations()) return false;
++            switch (self.config.custom_shader_animation) {
++                .false => return false,
++                .true => if (!self.focused) return false,
++                .always => {},
++            }
++
++            const now: std.Io.Timestamp = .now(global.io(), .awake);
++            if (self.last_shader_animation_frame) |last| {
++                if (last.durationTo(now).nanoseconds < shader_animation_interval_ns) return false;
++            }
++            self.last_shader_animation_frame = now;
++            return true;
++        }
++
+         /// True if our renderer is using vsync. If true, the renderer or apprt
+         /// is responsible for triggering draw_now calls to the render thread.
+         /// That is the only way to trigger a drawFrame.
+@@ -1855,7 +1887,7 @@ pub fn Renderer(comptime GraphicsAPI: type) type {
+             const needs_redraw =
+                 size_changed or
+                 self.cells_rebuilt or
+-                self.hasAnimations() or
++                self.shaderAnimationFrameDue() or
+                 sync;
+ 
+             if (!needs_redraw) {
+@@ -2619,8 +2651,13 @@ pub fn Renderer(comptime GraphicsAPI: type) type {
+             };
+             const last_frame_time = self.last_frame_time orelse now;
+ 
+-            const since_ns: f32 = @floatFromInt(first_frame_time.durationTo(now).nanoseconds);
+-            uniforms.time = since_ns / std.time.ns_per_s;
++            // Wrap shader time every 6 h. `iTime` is an f32, so an unwrapped
++            // clock loses precision as it grows (8 ms steps after a day) and
++            // animations stutter; 6 h keeps steps under 2 ms. Timestamps taken
++            // from it (`iTimeFocus`, `iTimeCursorChange`) jump once per wrap.
++            const shader_time_wrap_s: f64 = 6 * 60 * 60;
++            const since_ns: f64 = @floatFromInt(first_frame_time.durationTo(now).nanoseconds);
++            uniforms.time = @floatCast(@mod(since_ns / std.time.ns_per_s, shader_time_wrap_s));
+ 
+             const delta_ns: f32 = @floatFromInt(last_frame_time.durationTo(now).nanoseconds);
+             uniforms.time_delta = delta_ns / std.time.ns_per_s;
